@@ -8,6 +8,7 @@ Created on Thu Aug  24 19:28:30 2018
 # Plotting is preliminary and I will improve it in a day or two.
 #Try it for any excel data you have and let me know the areas of improvement (except plotting)
 #For verification, a simple check can be made. Check if the errors are correctly calculated for any arbitary case.- errors are printed in output before plot.
+#A sincere apology for bad style and lack of comments in the code. It was written during a very busy schedule during the semester.
 
 from sympy import *
 from sympy.parsing.sympy_parser import parse_expr
