@@ -8,7 +8,6 @@ Created on Thu Aug  24 19:28:30 2018
 # Plotting is preliminary and I will improve it in a day or two.
 #Try it for any excel data you have and let me know the areas of improvement (except plotting)
 #For verification, a simple check can be made. Check if the errors are correctly calculated for any arbitary case.- errors are printed in output before plot.
-#A sincere apology for bad style and lack of comments in the code. It was written during a very busy schedule during the semester.
 
 from sympy import *
 from sympy.parsing.sympy_parser import parse_expr
@@ -21,7 +20,8 @@ def dataset():
     sheet = input("Enter the sheet name: \n")
     data = pd.read_excel(address, sheet)
     print(data)
-    return (data)
+    datasheet = [data,sheet]
+    return (datasheet)
 
 def dependencies(data,points): #NOTE - All dependencies of the error function in the working formula should be in the dataframe
     dependence = {}
@@ -87,7 +87,7 @@ def theoretical(dependence):
         val = formula.evalf(subs= {var[vlist[j]]:(dependency[vlist[j]][0])[i] for j in range(len(vlist))})
         value.append(val)
 
-def plot(x,y,yerror):
+def plot(x,y,yerror,sheetname):
     
     ax = plt.axes()
     ax.xaxis.set_major_locator(plt.MaxNLocator(10))
@@ -96,9 +96,9 @@ def plot(x,y,yerror):
     ax.yaxis.set_minor_locator(plt.MaxNLocator(100))
     flag = int(input("Do you want to plot semi log? \n0. NO \n1. YES\n"))
     if flag:
-        ax.set_xscale("log")
+        ax.set_yscale("log")        #Change y or x scale depending on what you wanna plot
        
-    plt.errorbar(x,y, yerr= yerror,fmt='o', linewidth=1, markersize=4, capsize=2, label = "Experimental")
+    plt.errorbar(x,y, yerr= yerror,fmt='b', linewidth=0.5, markersize=0.5, capsize=0.5, label = "Experimental")
     ax.grid(which = 'major', linestyle='-', linewidth = 0.9, alpha=1.0)
     ax.grid(which = 'minor', linestyle=':', linewidth = 0.6, alpha=0.8)
     plt.xticks(rotation='vertical')
@@ -106,19 +106,21 @@ def plot(x,y,yerror):
     ylab = input ("Enter the y label \n")
     plt.xlabel(xlab)
     plt.ylabel(ylab)
-    p = np.polyfit(x,y,1)
-    plt.plot(x, p[1]+p[0]*x)
-    x = x.astype(np.float64,copy=False)
-    y = y.astype(np.float64,copy=False)
+    plt.title(sheetname)
+#    x = x.astype(np.float64,copy=False)
+#    y = y.astype(np.float64,copy=False)    #Use when plotting a regression curve
+#    p = np.polyfit(x,y,1)
+#    plt.plot(x, p[1]+p[0]*x)
     plt.legend(loc = 'upper left')
-    plt.savefig('fig1.png',dpi=400)
+    plt.savefig(sheetname + '.png',dpi=400)
     plt.show()
+#    print(p)
     
 
 def main():
     print("Welcome to Graphing 101: Error analytics in 2D plotting  \n")
-    data = dataset()
-    points = np.array(data)
+    datasheet = dataset()
+    points = np.array(datasheet[0])
     indepvar = int(input("Enter column number for independent variable (Column numbers start from 0) \n"))
     depvar = int(input("Enter column number for dependent variable (Column numbers start from 0) \n"))
     x = points[:,indepvar]
@@ -128,10 +130,10 @@ def main():
     flag = int(input("Want to add reading error? \n0.NO \n1.YES\n"))        #As of now, the program can only include instrumental/reading error. Statistical manipulations will be added soon.
     yerror = 0
     if flag:
-        dependence = dependencies(data,points)
+        dependence = dependencies(datasheet[0],points)
         yerror = readingerror(dependence)
     print(yerror)
-    plot(x,y,yerror)
+    plot(x,y,yerror,datasheet[1])
 
 if __name__=='__main__':
     main()
